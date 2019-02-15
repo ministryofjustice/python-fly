@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase, mock
 
 from fly import Fly
@@ -19,25 +20,35 @@ def patch_subprocess(return_value=None):
 class TestCommandsRun(TestCase):
     def setUp(self):
         self.fly = Fly(
-            concourse_url='http://localhost:8080'
+            concourse_url='http://127.0.0.1:8080'
         )
 
     @patch_subprocess()
     def test_login(self, run_mock):
         self.fly.login(
-            username='username', password='password', team_name='team_name')
+            username='admin', password='admin', team_name='main')
         self.assertTrue(run_mock.called)
         run_mock.assert_called_with([
             '/usr/local/bin/fly',
             '-t', 'default',
             'login',
-            '-c', 'http://localhost:8080',
-            '-u', 'username',
-            '-p', 'password',
-            '-n', 'team_name'
+            '-c', 'http://127.0.0.1:8080',
+            '-u', 'admin',
+            '-p', 'admin',
+            '-n', 'main'
         ], check=True, stdout=-1)
 
-    @patch_subprocess('[]')
+    @patch_subprocess(
+        json.dumps([
+            {
+                'id': 1, 'name':
+                'hello-world',
+                'paused': False,
+                'public': False,
+                'team_name': 'main'
+            }
+        ])
+    )
     def test_get_json(self, run_mock):
         pipelines = self.fly.get_json('pipelines')
         self.assertTrue(run_mock.called)
@@ -47,4 +58,12 @@ class TestCommandsRun(TestCase):
             'pipelines',
             '--json'
         ], check=True, stdout=-1)
-        self.assertListEqual(pipelines, [])
+        self.assertListEqual(pipelines, [
+            {
+                'id': 1,
+                'name': 'hello-world',
+                'paused': False,
+                'public': False,
+                'team_name': 'main'
+            }
+        ])

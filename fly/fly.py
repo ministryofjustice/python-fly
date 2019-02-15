@@ -8,7 +8,7 @@ import requests
 class Fly:
     def __init__(
             self, concourse_url, executable='/usr/local/bin/fly',
-            platform='linux', target='default'
+            platform='darwin', target='default'
     ):
         self.concourse_url = concourse_url
         self.executable = executable
@@ -50,4 +50,5 @@ class Fly:
             *args,
             '--json',
         ).stdout
+        print(items_json)
         return json.loads(items_json)
