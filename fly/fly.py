@@ -6,20 +6,24 @@ import subprocess
 import requests
 
 
+DEFAULT_FLY_BIN = '/usr/local/bin/fly'
+
+
 class Fly:
     def __init__(
-            self, concourse_url, executable='/usr/local/bin/fly',
-            target='default'
+        self,
+        concourse_url,
+        executable=DEFAULT_FLY_BIN,
+        target='default'
     ):
         self.concourse_url = concourse_url
         self.executable = executable
-        self.platform = platform.system().lower()
         self.target = target
 
     def get_fly(self):
         if not os.path.isfile(self.executable):
             url = f'{self.concourse_url}/api/v1/cli?arch=amd64&platform=' \
-                f'{self.platform}'
+                f'{platform.system().lower()}'
             response = requests.get(url, stream=True)
             if response.status_code == 200:
                 with open(self.executable, 'wb') as f:
