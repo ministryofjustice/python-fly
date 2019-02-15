@@ -12,6 +12,7 @@ Useage
     fly = Fly(
         concourse_url='http://127.0.0.1:8080'
     )
+    fly.get_fly()
     fly.login(username='admin', password='admin', team_name='main')
     fly.get_json('pipelines')
     fly.run(

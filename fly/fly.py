@@ -1,32 +1,41 @@
 import json
 import os
+import platform
 import subprocess
 
 import requests
 
 
+DEFAULT_FLY_BIN = '/usr/local/bin/fly'
+
+
 class Fly:
     def __init__(
-            self, concourse_url, executable='/usr/local/bin/fly',
-            platform='darwin', target='default'
+        self,
+        concourse_url,
+        executable=DEFAULT_FLY_BIN,
+        target='default'
     ):
         self.concourse_url = concourse_url
         self.executable = executable
-        self.platform = platform
         self.target = target
 
+    def get_fly(self):
         if not os.path.isfile(self.executable):
-            self._get_fly()
+            url = f'{self.concourse_url}/api/v1/cli'
+            params = {
+                'arch': 'amd64',
+                'platform': platform.system().lower()
+            }
+            response = requests.get(url, params=params, stream=True)
+            if response.status_code == 200:
+                with open(self.executable, 'wb') as f:
+                    for chunk in response:
+                        f.write(chunk)
+                self.make_file_executable()
 
-    def _get_fly(self):
-        url = f'{self.concourse_url}/api/v1/cli?arch=amd64&platform=' \
-            f'{self.platform}'
-        response = requests.get(url, stream=True)
-        if response.status_code == 200:
-            with open(self.executable, 'wb') as f:
-                for chunk in response:
-                    f.write(chunk)
-            os.chmod(self.executable, 0o755)
+    def make_file_executable(self):
+        os.chmod(self.executable, 0o755)
 
     def run(self, cmd, *args):
         return subprocess.run(
@@ -50,5 +59,4 @@ class Fly:
             *args,
             '--json',
         ).stdout
-        print(items_json)
         return json.loads(items_json)

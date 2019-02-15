@@ -7,7 +7,7 @@ from fly import Fly
 def patch_subprocess(return_value=None):
     def wraps(fn):
         @mock.patch('subprocess.run')
-        @mock.patch('fly.Fly._get_fly')
+        @mock.patch('fly.Fly.get_fly')
         def test(self, get_fly_mock, run_mock):
             stdout_mock = mock.Mock()
             attrs = {'stdout': return_value}
@@ -23,6 +23,7 @@ class TestCommandsRun(TestCase):
         self.fly = Fly(
             concourse_url='http://127.0.0.1:8080'
         )
+        self.fly.get_fly()
 
     @patch_subprocess()
     def test_login(self, run_mock):
