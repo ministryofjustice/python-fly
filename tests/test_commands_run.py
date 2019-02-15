@@ -7,7 +7,8 @@ from fly import Fly
 def patch_subprocess(return_value=None):
     def wraps(fn):
         @mock.patch('subprocess.run')
-        def test(self, run_mock):
+        @mock.patch('fly.Fly._get_fly')
+        def test(self, get_fly_mock, run_mock):
             stdout_mock = mock.Mock()
             attrs = {'stdout': return_value}
             stdout_mock.configure_mock(**attrs)
