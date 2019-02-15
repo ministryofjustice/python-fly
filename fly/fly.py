@@ -22,14 +22,20 @@ class Fly:
 
     def get_fly(self):
         if not os.path.isfile(self.executable):
-            url = f'{self.concourse_url}/api/v1/cli?arch=amd64&platform=' \
-                f'{platform.system().lower()}'
-            response = requests.get(url, stream=True)
+            url = f'{self.concourse_url}/api/v1/cli'
+            params = {
+                'arch': 'amd64',
+                'platform': platform.system().lower()
+            }
+            response = requests.get(url, params=params, stream=True)
             if response.status_code == 200:
                 with open(self.executable, 'wb') as f:
                     for chunk in response:
                         f.write(chunk)
-                os.chmod(self.executable, 0o755)
+                self.make_file_executable()
+
+    def make_file_executable(self):
+        os.chmod(self.executable, 0o755)
 
     def run(self, cmd, *args):
         return subprocess.run(
