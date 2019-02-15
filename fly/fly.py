@@ -1,5 +1,6 @@
 import json
 import os
+import platform
 import subprocess
 
 import requests
@@ -8,17 +9,14 @@ import requests
 class Fly:
     def __init__(
             self, concourse_url, executable='/usr/local/bin/fly',
-            platform='darwin', target='default'
+            target='default'
     ):
         self.concourse_url = concourse_url
         self.executable = executable
-        self.platform = platform
+        self.platform = platform.system().lower()
         self.target = target
 
-        if not os.path.isfile(self.executable):
-            self._get_fly()
-
-    def _get_fly(self):
+    def get_fly(self):
         url = f'{self.concourse_url}/api/v1/cli?arch=amd64&platform=' \
             f'{self.platform}'
         response = requests.get(url, stream=True)
@@ -50,5 +48,4 @@ class Fly:
             *args,
             '--json',
         ).stdout
-        print(items_json)
         return json.loads(items_json)
