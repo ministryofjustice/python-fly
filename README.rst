@@ -1,4 +1,3 @@
-# python-fly
 Snakes on a plane
 =================
 
