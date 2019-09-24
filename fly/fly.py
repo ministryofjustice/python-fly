@@ -33,6 +33,11 @@ class Fly:
                     for chunk in response:
                         f.write(chunk)
                 self.make_file_executable()
+        else:
+            self.sync()
+
+    def sync(self):
+        self.run('sync')
 
     def make_file_executable(self):
         os.chmod(self.executable, 0o755)
